@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      html {
+        box-sizing: border-box;
+        font-family: var(--maint-font);
+        scroll-behavior: smooth;
+      }
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+      body {
+        margin: 0;
+        overflow-x: hidden;
+        font-family: sans-serif;
+      }
+      .contact-form {
+        --form-ok-color: #4caf50;
+        --form-error-color: #f44336;
+        width: 100%;
+        max-width: 800px;
+        margin: auto;
+        background-color: var(--main-color);
+        border-radius: 10px;
+        padding: 0.5rem 0;
+      }
+      .contact-form > * {
+        display: block;
+        width: 90%;
+        margin: 0.75rem auto;
+        border-radius: 5px;
+        font-family: var(--font-size);
+        padding: 1rem;
+        font-size: 1rem;
+        border: none;
+        outline: none;
+      }
+      textarea {
+        resize: none;
+        /* max-width: ; */
+      }
+      .contact-form [type="submit"] {
+        width: 80%;
+        max-width: 400px;
+        border-radius: 2rem;
+        background-color: rgb(26, 24, 24);
+        color: #fff;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        border: none;
+        outline: none;
+      }
+      .contact-form [type="submit"]:hover {
+        background-color: rgb(39, 37, 37);
+      }
+      .contact-form-legend,
+      .contact-form-response {
+        border: none;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #222;
+      }
+      .contact-form :required:valid {
+        border: 1.9px solid var(--form-ok-color);
+      }
+      .contact-form :required:invalid {
+        border: 1.9px solid var(--form-error-color);
+      }
+      .contact-form-error {
+        margin-top: -1rem;
+        font-size: 80%;
+        background-color: var(--form-error-color);
+        color: #fff;
+        transition: all 800ms ease;
+      }
+      .contact-form-error.is-active {
+        display: block;
+        animation: show-message 1s 1 normal 0s ease-in-out both;
+      }
+      .none {
+        display: none;
+      }
+      .contac-form-loader {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <form class="contact-form">
+      <legend class="contact-form-legend">Envianos tu comentario</legend>
+      <input
+        type="text"
+        name="name"
+        title="El campo nombre solo acepta letras y espacios"
+        pattern="^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]+$"
+        placeholder="Escribe tu nombre"
+        required
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="Escribe tu email"
+        title="Email no valido"
+        pattern="^[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})$"
+        required
+      />
+      <input
+        type="text"
+        name="subject"
+        placeholder="Asunto a tratar"
+        title="El asunto es requerido"
+        required
+      />
+      <textarea
+        name="commets"
+        cols="50"
+        rows="5"
+        data-pattern="^.{1,255}$"
+        placeholder="Escribe tus comentarios"
+        title="Tu comentario no debe exceder de los 250 caracteres"
+        required
+      ></textarea>
+      <input type="submit" value="Enviar" />
+      <div class="contac-form-loader none">
+        <img src="assets/loader.svg" alt="loader" />
+      </div>
+      <div class="contact-form-response none">
+        <p>Los datos han sido enviados</p>
+      </div>
+    </form>
+    <script>
+      const $form = document.querySelector(".contact-form");
+      const $inputs = document.querySelectorAll(".contact-form [required]");
+      $inputs.forEach((input) => {
+        const $span = document.createElement("span");
+        $span.textContent = input.title;
+        $span.id = input.name;
+        $span.classList.add("contact-form-error", "none");
+        input.insertAdjacentElement("afterend", $span);
+      });
+      document.addEventListener("keyup", (e) => {
+        if (e.target.matches(".contact-form [required]")) {
+          let pattern = e.target.pattern || e.target.dataset.pattern;
+          if (pattern) {
+            let regex = new RegExp(pattern);
+            return !regex.test(e.target.value)
+              ? document
+                  .getElementById(e.target.name)
+                  .classList.add("is-active")
+              : document
+                  .getElementById(e.target.name)
+                  .classList.remove("is-active");
+          }
+          if (!pattern) {
+            console.log(e.target.value === "");
+            return e.target.value === ""
+              ? document
+                  .getElementById(e.target.name)
+                  .classList.add("is-active")
+              : document
+                  .getElementById(e.target.name)
+                  .classList.remove("is-active");
+          }
+        }
+      });
+      document.addEventListener("submit", (e) => {
+        e.preventDefault();
+        alert("Enviando formulario");
+        const $loader = document.querySelector(".contac-form-loader");
+        const $response = document.querySelector(".contact-form-response");
+        $loader.classList.remove("none");
+        fetch("", {
+          method: "POST",
+          body: new FormData($form),
+        })
+          .then((result) => {})
+          .catch((err) => {});
+        // setTimeout(() => {
+        //   $loader.classList.add("none");
+        //   $response.classList.remove("none");
+        //   $form.reset();
+        //   setTimeout(() => $response.classList.add("none"), 3000);
+        // }, 3000);
+      });
+    </script>
+  </body>
+</html>

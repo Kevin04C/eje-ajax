@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      html {
+        box-sizing: border-box;
+        scroll-behavior: smooth;
+      }
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+      body {
+        margin: 0;
+        overflow-x: hidden;
+        font-family: sans-serif;
+      }
+
+      main {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      progress {
+        margin-top: 1rem;
+      }
+      .drop {
+        border: 5px dashed #ccc;
+        background-color: #48e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 700px;
+        max-width: 80%;
+        height: 200px;
+        transition: 0.5s border ease;
+        /* animation: scale 1s infinite linear alternate; */
+      }
+      @keyframes scale {
+        fro {
+          transform: scale(1);
+        }
+        to {
+          transform: scale(1.1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="drop" id="drop" draggable="true">
+        <!-- <p>Arrastra y suelta tus archivos</p> -->
+        Arrastra y suelta tus archivos
+      </div>
+    </main>
+    <script>
+      const drop = document.getElementById("drop");
+      const main = document.querySelector("main");
+      const uploader = (file) => {
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData();
+        formData.append("file", file);
+
+        xhr.addEventListener("readystatechange", (e) => {
+          if (xhr.readyState !== 4) return;
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const json = JSON.parse(xhr.responseText);
+            console.log(json);
+          } else {
+            console.log("Error method post");
+          }
+        });
+        xhr.open("POST", "assets/uploader.php");
+        xhr.setRequestHeader("enc-type", "multipart/form-data");
+        xhr.send(formData);
+      };
+      const updateProgress = (file) => {
+        const progress = document.createElement("progress");
+        const span = document.createElement("span");
+
+        progress.value = 0;
+        progress.max = 100;
+
+        main.insertAdjacentElement("beforeend", progress);
+        main.insertAdjacentElement("beforeend", span);
+        const fileReader = new FileReader();
+        fileReader.readAsDataURL(file);
+
+        fileReader.addEventListener("progress", (e) => {
+          progress.value = parseInt((e.loaded * e.total) / 100);
+          span.textContent = `Archivo ${file.name}`;
+        });
+        fileReader.addEventListener("loadend", (e) => {
+          setTimeout(() => {
+            main.removeChild(progress);
+            main.removeChild(span);
+            uploader(file);
+          }, 3000);
+        });
+      };
+
+      // document.addEventListener("change", (e) => {
+      //   if (e.target === files) {
+      //     const files = Array.from(e.target.files);
+      //     files.forEach((file) => updateProgress(file));
+      //   }
+      // });
+      const changeStyle = (color) =>
+        (drop.style.border = `5px dashed ${color}`);
+
+      drop.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        changeStyle("#8e4");
+        e.target.style.animation = "scale 1s infinite linear alternate";
+      });
+      drop.addEventListener("dragenter", (e) => {
+        e.preventDefault();
+        console.log("dragEnter");
+      });
+      drop.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        e.target.style.animation = "";
+      });
+      drop.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files);
+        files.forEach((file) => updateProgress(file));
+        changeStyle("#ccc");
+        e.target.style.animation = "";
+      });
+    </script>
+  </body>
+</html>
