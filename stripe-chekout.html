@@ -6,25 +6,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stripe</title>
     <style>
-      body {
+      html {
+        box-sizing: border-box;
         font-family: sans-serif;
+      }
+      *,
+      ::before,
+      ::after {
+        box-sizing: inherit;
+      }
+      body {
+        background-color: #222;
       }
       .tacos {
         display: flex;
         flex-wrap: wrap;
       }
-      img {
+      .tacos img {
         width: 100%;
-        height: 100%;
         object-fit: cover;
         display: block;
       }
       .taco {
-        flex: 1 1 300px;
-        margin-bottom: 5rem;
+        flex: 1 1 200px;
+        background-color: #48e;
+        color: #fff;
+        font-size: 125%;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s all ease;
+      }
+      .taco:hover {
+        opacity: 0.9;
+        transform: scale(0.95);
       }
       h1 {
         text-align: center;
+        color: #fff;
+      }
+      figcaption {
+        padding: 1rem 0.5rem;
       }
     </style>
   </head>
