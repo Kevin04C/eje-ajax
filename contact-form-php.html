@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Envio de formularios con FECTH y PHP</title>
     <style>
       html {
         box-sizing: border-box;
@@ -20,6 +20,7 @@
         margin: 0;
         overflow-x: hidden;
         font-family: sans-serif;
+        background-color: #222;
       }
       .contact-form {
         --form-ok-color: #4caf50;
@@ -28,14 +29,12 @@
         max-width: 800px;
         margin: auto;
         background-color: var(--main-color);
-        border-radius: 10px;
         padding: 0.5rem 0;
       }
       .contact-form > * {
         display: block;
         width: 90%;
         margin: 0.75rem auto;
-        border-radius: 5px;
         font-family: var(--font-size);
         padding: 1rem;
         font-size: 1rem;
@@ -94,49 +93,77 @@
       .contact-form-response {
         text-align: center;
       }
+      .contact-form {
+        background: #348;
+      }
+      .contact-form input,
+      textarea {
+        background: transparent;
+        border: none !important;
+        border-bottom: 1px solid #fff !important;
+      }
+      .contact-form-legend {
+        color: #fff;
+        text-align: center;
+        font-size: 2rem;
+      }
+      input[type="submit"] {
+        border: none !important;
+      }
+      main {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      input {
+        color: #fff;
+      }
     </style>
   </head>
   <body>
-    <form class="contact-form">
-      <legend class="contact-form-legend">Envianos tu comentario</legend>
-      <input
-        type="text"
-        name="name"
-        title="El campo nombre solo acepta letras y espacios"
-        pattern="^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]+$"
-        placeholder="Escribe tu nombre"
-        required
-      />
-      <input
-        type="email"
-        name="email"
-        placeholder="Escribe tu email"
-        title="Email no valido"
-        pattern="^[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})$"
-        required
-      />
-      <input
-        type="text"
-        name="subject"
-        placeholder="Asunto a tratar"
-        title="El asunto es requerido"
-        required
-      />
-      <textarea
-        name="commets"
-        cols="50"
-        rows="5"
-        data-pattern="^.{1,255}$"
-        placeholder="Escribe tus comentarios"
-        title="Tu comentario no debe exceder de los 250 caracteres"
-        required
-      ></textarea>
-      <input type="submit" value="Enviar" />
-      <div class="contac-form-loader none">
-        <img src="assets/loader.svg" alt="loader" />
-      </div>
-      <div class="contact-form-response none"></div>
-    </form>
+    <main>
+      <form class="contact-form">
+        <legend class="contact-form-legend">Fetch y PHP</legend>
+        <input
+          type="text"
+          name="name"
+          title="El campo nombre solo acepta letras y espacios"
+          pattern="^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]+$"
+          placeholder="Escribe tu nombre"
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Escribe tu email"
+          title="Email no valido"
+          pattern="^[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})$"
+          required
+        />
+        <input
+          type="text"
+          name="subject"
+          placeholder="Asunto a tratar"
+          title="El asunto es requerido"
+          required
+        />
+        <textarea
+          name="commets"
+          cols="50"
+          rows="5"
+          data-pattern="^.{1,255}$"
+          placeholder="Escribe tus comentarios"
+          title="Tu comentario no debe exceder de los 250 caracteres"
+          required
+        ></textarea>
+        <input type="submit" value="Enviar" />
+        <div class="contac-form-loader none">
+          <img src="assets/loader.svg" alt="loader" />
+        </div>
+        <div class="contact-form-response none"></div>
+      </form>
+    </main>
     <script>
       const $form = document.querySelector(".contact-form");
       const $inputs = document.querySelectorAll(".contact-form [required]");
@@ -178,21 +205,23 @@
         const $loader = document.querySelector(".contac-form-loader");
         const $response = document.querySelector(".contact-form-response");
         $loader.classList.remove("none");
-        fetch("https://formsubmit.co/ajax/kevincespedesalvares@gmail.com", {
+        fetch("assets/send_mail.php", {
           method: "POST",
           body: new FormData(e.target),
+          mode: "cors",
         })
           .then((res) => (res.ok ? res.json() : Promise.reject(res)))
-          .then((res) => {
+          .then((result) => {
             $loader.classList.add("none");
             $response.classList.remove("none");
-            $response.innerHTML = `<p>${res.message}</p>`;
+            $response.innerHTML = `<p>${result.message}</p>`;
             setTimeout(() => {
               $response.classList.add("none");
             }, 3000);
+            console.log(result);
           })
           .catch((err) => {
-            $response.innerHTML = `<p>${res.message}</p>`;
+            $response.innerHTML = `<p>${err.message}</p>`;
           })
           .finally(() => {
             $response.classList.add("none");
