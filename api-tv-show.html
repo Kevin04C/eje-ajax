@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API TV SHOW</title>
+    <style>
+      * {
+        font-family: sans-serif;
+      }
+      .grid-fluid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.5rem;
+      }
+      .grid-fluid .loader {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>API TV SHOW</h1>
+    <input
+      type="search"
+      id="search"
+      placeholder="Busca el show de tv..."
+      autocomplete="off"
+    />
+    <section id="shows" class="grid-fluid"></section>
+    <template id="show-template">
+      <article class="show">
+        <h3></h3>
+        <div></div>
+        <img />
+        <a></a>
+      </article>
+    </template>
+    <script>
+      const shows = document.getElementById("shows");
+      const template = document.getElementById("show-template").content;
+      const fragment = document.createDocumentFragment();
+
+      document.addEventListener("keypress", async (e) => {
+        if (e.target.matches("#search")) {
+          if (e.key === "Enter") {
+            try {
+              shows.innerHTML = `<img src="assets/loader.svg" class="loader">`;
+              let query = e.target.value.toLowerCase();
+              let api = ` https://api.tvmaze.com/search/shows?q=${query}`;
+              let res = await fetch(api);
+              let json = await res.json();
+
+              if (!res.ok)
+                throw { status: res.status, statusText: res.statusText };
+
+              if (json.length === 0) {
+                shows.innerHTML = `<h2>No se encontraron resultados para shows de tipo ${query}</h2>`;
+              } else {
+                json.forEach((show) => {
+                  console.log(show);
+                });
+              }
+            } catch (err) {
+              let message = err.statusText || "Ocurrio un error";
+              shows.innerHTML = `<p>Error ${err.status}: ${message}</p>`;
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
