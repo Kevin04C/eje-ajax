@@ -9,6 +9,7 @@
   <style>
     body {
       font-family: sans-serif;
+      background-color: #fafafa;
     }
     .title {
       text-align: center;
@@ -16,7 +17,28 @@
     .container {
       width: 1024px;
       max-width: 90%;
-      margin: auto;
+      margin: 0 auto;
+    }
+    input {
+      width: 760px;
+      max-width: 90%;
+      height: 3rem;
+      border: none;
+      outline: none;
+      padding: 0 1rem;
+      font-size: 0.9rem;
+      border-radius: 10px;
+      box-shadow: 0 25px 30px rgba(120, 116, 116, 0.075);
+    }
+    input[type="submit"] {
+      display: inline-block;
+      background-color: #48e;
+      color: #fff;
+      width: unset;
+      max-width: unset;
+      padding: 0.5rem 1.9rem;
+      box-shadow: unset;
+      cursor: pointer;
     }
     .loader {
       display: none;
@@ -24,18 +46,49 @@
     }
     .form .container > * {
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.8rem;
     }
     .result {
       display: flex;
       flex-direction: column;
+      gap: 0.8rem;
     }
-    @media screen and(min-width:800px) {
+    .song {
+      white-space: pre;
+      text-align: center;
+      background-color: #fff;
+      box-shadow: 0 25px 30px rgba(120, 116, 116, 0.075);
+      border-radius: 10px;
+    }
+    .artist {
+      background-color: #fff;
+      box-shadow: 0 25px 30px rgba(120, 116, 116, 0.075);
+      border-radius: 10px;
+    }
+    .artist a {
+      display: inline-block;
+      background-color: #48e;
+      color: #fff;
+      width: unset;
+      max-width: unset;
+      padding: 0.5rem 1.9rem;
+      box-shadow: unset;
+      cursor: pointer;
+      border-radius: 10px;
+      text-decoration: none;
+    }
+    p {
+      max-width: 100%;
+    }
+    img {
+      max-width: 100%;
+    }
+    @media screen and (min-width: 800px) {
       .result {
         flex-direction: row;
       }
       .result > * {
-        flex: 1 1 50%;
+        flex-basis: 50%;
       }
     }
   </style>
@@ -60,8 +113,8 @@
       const loader = document.querySelector(".loader");
       const form = document.querySelector(".form");
       const error = document.querySelector(".form");
-      const artist = document.querySelector(".artist");
-      const song = document.querySelector(".song");
+      const artista = document.querySelector(".artist");
+      const musica = document.querySelector(".song");
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -74,7 +127,6 @@
           let songTemplate = "";
           let artistApi = `https://theaudiodb.com/api/v1/json/2/search.php?s=${artist}`;
           let songApi = `https://api.lyrics.ovh/v1/${artist}/${song}`;
-          console.time("incio");
           let artisFetch = fetch(artistApi);
           let songFetch = fetch(songApi);
 
@@ -82,10 +134,40 @@
           let artisData = await artisRes.json();
           let songData = await songRes.json();
 
-          console.log(artisData);
-          console.log(songData);
+          if (artisData.artists === null) {
+            console.log("no existe ningun artista con ese nombre");
+          } else {
+            let artist = artisData.artists[0];
+            console.log(artisData);
+            console.log(artist.strArtistThumb);
+            artistTemplate = `
+            <h2>${artist.strArtist}</h2>
+            <img src="${artist.strArtistThumb}" alt="${artist.strArtist}">
+            <p>${artist.intBornYear} - ${artist.intDiedYear || "Presente"}</p>
+            <p>${artist.strCountry}</p>
+            <p>${artist.strGenre} - ${artist.strStyle} </p>
+            <a href="https://${
+              artist.strWebsite
+            }" target="_blank" >Ver sitio web </a>
 
-          console.timeEnd("incio");
+            <p>${artist.strBiographyEN}</p>
+            `;
+          }
+          if (songData.error) {
+            console.log("no existe la cancion");
+          } else {
+            songTemplate = `
+            <h2>Canción ${song}</h2> 
+            <p>${songData.lyrics}</p>
+            `;
+          }
+          console.log(artist);
+          loader.style.display = "none";
+          artista.innerHTML = artistTemplate;
+          artista.style.padding = "1rem 1.5rem";
+
+          musica.innerHTML = songTemplate;
+          musica.style.padding = "1rem 1.5rem";
         } catch (err) {
           loader.style.display = "block";
           console.log(err);

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Select Aniadados</h1>
+    <h2>Mexico</h2>
+    <label for="select-primary">Selecione un estado</label>
+    <select name="primary" id="select-primary">
+      <option value="">Elige un estado</option>
+    </select>
+    <p></p>
+    <label for="select-secondary">Seleccione un municipio</label>
+    <select name="secondary" id="select-secondary">
+      <option value="">Elige un municipio</option>
+    </select>
+    <p></p>
+    <script>
+      const token = "6e74c182-9e95-46c0-ad6a-388a304aa1f6";
+      const primary = document.getElementById("select-primary");
+      const secondary = document.getElementById("select-secondary");
+
+      function loadStates() {
+        fetch(`https://api.copomex.com/query/get_estados?token=pruebas`)
+          .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+          .then((json) => {
+            console.log(json);
+            let option = `<option value="">Elige un estado</option>`;
+            json.response.estado.forEach(
+              (estado) =>
+                (option += `<option value="${estado}">${estado}</option>`)
+            );
+            primary.innerHTML = option;
+          })
+          .catch((err) => {
+            let message = err.statusText || "Ocurrió un error";
+            primary.nextElementSibling.innerHTML = `Error ${err.status}: ${message}`;
+          });
+      }
+      function loadTowns(state) {
+        let url = `https://api.copomex.com/query/get_municipio_por_estado/${state}?token=pruebas`;
+
+        fetch(url)
+          .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+          .then((json) => {
+            let data = json.response.municipios;
+            let option = `<option value="">Elige un municipio</option>`;
+
+            data.forEach((municipio) => {
+              option += `<option value="${municipio}">${municipio}</option>`;
+            });
+
+            secondary.innerHTML = option;
+          })
+          .catch((err) => {
+            let message = err.statusText || "Ocurrió un error";
+            secondary.nextElementSibling.innerHTML = `Error ${err.status}: ${message}`;
+          });
+      }
+
+      document.addEventListener("DOMContentLoaded", loadStates);
+      document.addEventListener("change", (e) => {
+        if (e.target === primary) {
+          loadTowns(e.target.value);
+        }
+      });
+    </script>
+  </body>
+</html>
